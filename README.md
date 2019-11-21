@@ -15,7 +15,7 @@ run
  --alertmanager.port=9093 \
  --slack.username=Bot \
  --slack.channel=general \
- --slack.token={your webhook token}
+ --slack.token={your webhook token} \
  --interval=10s \
  --timerange=5m
 ```
