@@ -55,20 +55,18 @@ func run() int {
 		getOk, err = amclient.Silence.GetSilences(silenceParams)
 		if err != nil {
 			fmt.Println(err)
-		}
-		for _, silence := range getOk.Payload {
-			if time.Time(*silence.EndsAt).After(time.Now().UTC().Add(-5 * time.Minute)) {
-				if CompareSilences(prev, *silence.ID, *silence.Status.State) {
-					PostSlack(*silence,*username,*channel,*token)
-				}	
-				tmp = append(tmp, IdAndState{*silence.ID, *silence.Status.State})
+		} else {
+			for _, silence := range getOk.Payload {
+				if time.Time(*silence.EndsAt).After(time.Now().UTC().Add(-5 * time.Minute)) {
+					if CompareSilences(prev, *silence.ID, *silence.Status.State) {
+						PostSlack(*silence,*username,*channel,*token)
+					}	
+					tmp = append(tmp, IdAndState{*silence.ID, *silence.Status.State})
+				}
 			}
+			prev = tmp
 		}
-		prev = tmp
 		time.Sleep(*interval)
-		if err != nil {
-			fmt.Println(err)
-		}
 	}
 	return 0
 }
