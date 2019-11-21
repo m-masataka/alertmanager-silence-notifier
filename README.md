@@ -20,3 +20,4 @@ run
  --timerange=5m
 ```
 
+![slack image](https://raw.githubusercontent.com/m-masataka/alertmanager-silence-notifier/images/slack_image.png)
