@@ -59,7 +59,7 @@ func run() int {
 			for _, silence := range getOk.Payload {
 				if time.Time(*silence.EndsAt).After(time.Now().UTC().Add(-5 * time.Minute)) {
 					if CompareSilences(prev, *silence.ID, *silence.Status.State) {
-						PostSlack(*silence,*username,*channel,*token)
+						PostSlack(*silence,*username,*channel,*token, *host, *port)
 					}	
 					tmp = append(tmp, IdAndState{*silence.ID, *silence.Status.State})
 				}
@@ -80,7 +80,7 @@ func CompareSilences(list []IdAndState, id string, state string) bool {
 	return true
 }
 
-func PostSlack(s models.GettableSilence, username string, channel string, token string) error {
+func PostSlack(s models.GettableSilence, username string, channel string, token string, host string, port string) error {
 	titleStr := *s.Status.State + " : " + *s.ID
 	valueStr := "Starts at: " + s.Silence.StartsAt.String() + "\n" +
 		"Ends at     : " + s.Silence.EndsAt.String() + "\n" +
@@ -97,12 +97,10 @@ func PostSlack(s models.GettableSilence, username string, channel string, token 
 		}
 		valueStr += *matcher.Name + operator + *matcher.Value + "\n"
 	}
-	field := slack.Field{
-		Title: titleStr,
-		Value: valueStr,
-	}
+	silenceUrl := "http://" + host + ":" + port + "/#/silences/" + *s.ID
 	attachment := slack.Attachment{}
-	attachment.AddField(field)
+	attachment.AddField(slack.Field{ Title: titleStr, Value: valueStr })
+	attachment.AddAction(slack.Action { Type: "button", Text: "View", Url: silenceUrl })
 	var color string
 	var msg string
 	if *s.Status.State == "active" {
